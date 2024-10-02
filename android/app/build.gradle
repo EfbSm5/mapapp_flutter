@@ -29,6 +29,29 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
+    signingConfigs {
+        release {
+            keyAlias 'key0'
+            keyPassword 'lihuwei151'
+            storeFile file('./map_flutter.jks')
+            storePassword 'lihuwei151'
+        }
+    }
+
+    buildTypes {
+        release {
+            // TODO: Add your own signing config for the release build.
+            // Signing with the debug keys for now, so `flutter run --release` works.
+            signingConfig signingConfigs.release
+            minifyEnabled true //删除无用代码
+            shrinkResources true //删除无用资源
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            signingConfig signingConfigs.release
+            debuggable true
+        }
+    }
 
     buildTypes {
         release {
@@ -37,6 +60,10 @@ android {
             signingConfig = signingConfigs.debug
         }
     }
+}
+dependencies {
+    implementation('com.amap.api:location:5.6.0')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
 
 flutter {
