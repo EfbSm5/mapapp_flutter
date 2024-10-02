@@ -1,16 +1,11 @@
-# mapapp
+# Mapapp_flutter
 
 A new Flutter project.
+学习flutter中，尝试高德地图sdk重写的地图应用  
+目标  
+1. 基本的地图显示
+2. 可以把学校内景点进行标注
+3. 处于景点附近可以自动改变景点标识
+4. 有搜索功能可以实现优先搜索学校内地点，支持模糊搜索
+5. 一键重置标识和切换卫星地图
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
