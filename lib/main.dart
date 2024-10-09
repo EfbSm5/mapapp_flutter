@@ -1,10 +1,15 @@
-import 'dart:async';
-import 'dart:io';
-
-import 'package:amap_flutter_location/amap_flutter_location.dart';
-import 'package:amap_flutter_location/amap_location_option.dart';
+import 'package:amap_map/amap_map.dart';
 import 'package:flutter/material.dart';
+import 'package:mapapp/const_config.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
+import 'package:x_amap_base/x_amap_base.dart';
+
+final List<Permission> needPermissionList = [
+  Permission.location,
+  Permission.storage,
+  Permission.phone,
+];
 
 void main() {
   runApp(const MyApp());
@@ -15,178 +20,144 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    _checkPermissions();
+    AMapInitializer.init(context, apiKey: ConstConfig.amapApiKeys);
+    AMapInitializer.updatePrivacyAgree(ConstConfig.amapPrivacyStatement);
+    return ChangeNotifierProvider(
+      create: (context) => MyAppState(),
+      child: MaterialApp(
+        title: 'Namer App',
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
+        ),
+        home: MyHomePage(),
       ),
-      home: HomePage(),
     );
   }
-}
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  final AMapFlutterLocation flutterLocation = AMapFlutterLocation();
-  final AMapLocationOption aMapLocationOption = AMapLocationOption(
-    needAddress: true,
-    geoLanguage: GeoLanguage.DEFAULT,
-    onceLocation: false,
-    locationMode: AMapLocationMode.Hight_Accuracy,
-    locationInterval: 2000,
-    pausesLocationUpdatesAutomatically: false,
-    desiredAccuracy: DesiredAccuracy.Best,
-    desiredLocationAccuracyAuthorizationMode:
-    AMapLocationAccuracyAuthorizationMode.FullAccuracy,
-    distanceFilter: -1,
-  );
-  late final StreamSubscription<Map<String, Object>> subscription;
-  late int count = 0;
-
-  @override
-  void initState() {
-    AMapFlutterLocation.updatePrivacyShow(true, true);
-    AMapFlutterLocation.updatePrivacyAgree(true);
-    requestPermission();
-    AMapFlutterLocation.setApiKey(
-      "e51a737b3742762791f3c89f4dc61e6d",
-      "cb341ecb2fb63ff6965c62a009979f29",
-    );
-    if (Platform.isIOS) {
-      requestAccuracyAuthorization();
-    }
-    subscription = flutterLocation.onLocationChanged().listen((event) {
-      print(event.toString());
+  void _checkPermissions() async {
+    Map<Permission, PermissionStatus> statuses =
+        await needPermissionList.request();
+    statuses.forEach((key, value) {
+      print('$key premissionStatus is $value');
     });
-
-    super.initState();
   }
+}
 
-  @override
-  void dispose() {
-    subscription.cancel();
-    flutterLocation.destroy();
-    super.dispose();
-  }
+class MyAppState extends ChangeNotifier {}
+
+// ...
+
+class MyHomePage extends StatelessWidget {
+  var selectedPage = 0;
+
+  MyHomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                flutterLocation.setLocationOption(aMapLocationOption);
-                Timer.periodic(const Duration(seconds: 1), (timer) {
-                  count++;
-                  print("定位序列号$count");
-                  flutterLocation.startLocation();
-                });
-              },
-              child: Text("开始定位"),
+      body: Column(
+        children: [
+          Expanded(
+            child: Container(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              child: const MapPage(),
             ),
-            ElevatedButton(
-              onPressed: () {
-                flutterLocation.stopLocation();
+          ),
+          SafeArea(
+            child: NavigationRail(
+              extended: false,
+              destinations: const [
+                NavigationRailDestination(
+                  icon: Icon(Icons.map),
+                  label: Text('MapPage"'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.search),
+                  label: Text('SearchPage'),
+                ),
+              ],
+              selectedIndex: selectedPage,
+              onDestinationSelected: (value) {
+                selectedPage = value;
+                print('selected: $value');
               },
-              child: Text("停止定位"),
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class MapPage extends StatelessWidget {
+  const MapPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+
+    return Center(
+      child: (Center(child: _ShowMapPageBody())),
+    );
+  }
+}
+
+// ...
+
+class GeneratorPage extends StatelessWidget {
+  const GeneratorPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [],
+      ),
+    );
+  }
+}
+
+class _ShowMapPageBody extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _ShowMapPageState();
+}
+
+class _ShowMapPageState extends State<_ShowMapPageBody> {
+  static const CameraPosition _kInitialPosition = CameraPosition(
+    target: LatLng(
+      30.51342,
+      114.413578,
+    ),
+    zoom: 10.0,
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final AMapWidget map = AMapWidget(
+      initialCameraPosition: _kInitialPosition,
+      onMapCreated: onMapCreated,
+    );
+
+    return ConstrainedBox(
+      constraints: const BoxConstraints.expand(),
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        child: map,
       ),
     );
   }
 
-  /// 动态申请定位权限
-  void requestPermission() async {
-    bool hasLocationWhenInUsePermission =
-    await requestIosLocationWhenInUserPermission();
-    if (hasLocationWhenInUsePermission) {
-      bool hasLocationAlwaysWhenInUsePermission =
-      await requestIosLocationAlwaysWhenInUserPermission();
-      if (hasLocationAlwaysWhenInUsePermission) {
-      } else {}
-    } else {}
-  }
+  late AMapController _mapController;
 
-  /// 申请定位权限
-  Future<bool> requestLocationPermission() async {
-    var status = await Permission.location.status;
-    if (status == PermissionStatus.granted) {
-      return true;
-    } else {
-      status = await Permission.location.request();
-      if (status == PermissionStatus.granted) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-  }
-
-  Future<bool> requestIosLocationPermission() async {
-    var status = await Permission.location.status;
-    if (status == PermissionStatus.granted) {
-      return true;
-    } else {
-      status = await Permission.location.request();
-      if (status == PermissionStatus.granted) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-  }
-
-  Future<bool> requestIosLocationWhenInUserPermission() async {
-    var status = await Permission.locationWhenInUse.status;
-    if (status == PermissionStatus.granted) {
-      return true;
-    } else {
-      status = await Permission.locationWhenInUse.request();
-      if (status == PermissionStatus.granted) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-  }
-
-  Future<bool> requestIosLocationAlwaysWhenInUserPermission() async {
-    var status = await Permission.locationAlways.status;
-    if (status == PermissionStatus.granted) {
-      return true;
-    } else {
-      status = await Permission.locationAlways.request();
-      print("Permission.locationAlways - $status");
-      if (status == PermissionStatus.granted) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-  }
-
-  void requestAccuracyAuthorization() async {
-    AMapAccuracyAuthorization currentAccuracyAuthorization =
-    await flutterLocation.getSystemAccuracyAuthorization();
-    if (currentAccuracyAuthorization ==
-        AMapAccuracyAuthorization.AMapAccuracyAuthorizationFullAccuracy) {
-      print("精确定位类型");
-    } else if (currentAccuracyAuthorization ==
-        AMapAccuracyAuthorization.AMapAccuracyAuthorizationReducedAccuracy) {
-      print("模糊定位类型");
-    } else {
-      print("未知定位类型");
-    }
+  void onMapCreated(AMapController controller) {
+    setState(() {
+      _mapController = controller;
+    });
   }
 }
