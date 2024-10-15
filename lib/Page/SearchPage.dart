@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mapapp/Data/Markers.dart';
 import 'package:mapapp/Data/SearchForPoi.dart';
+import 'package:mapapp/Page/ShowMapPage.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -13,8 +14,7 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final TextEditingController _controller = TextEditingController();
-  List<String?> ListNames = [];
-  List<Marker> markerList = [];
+  List<Marker> markerList = MarkersInSchool().markersInSchool.toList();
 
   @override
   Widget build(BuildContext context) {
@@ -35,16 +35,16 @@ class _SearchPageState extends State<SearchPage> {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: ListNames.length,
+              itemCount: markerList.length,
               itemBuilder: (context, index) {
-                final name = ListNames[index];
+                final name = markerList[index].infoWindow.title;
                 return ListTile(
                   title: Text(name!),
                   onTap: () {
-                    // 点击后显示选中项的名称
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('You selected: $name')),
-                    );
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ShowMapPageBody()));
                   },
                 );
               },
@@ -56,10 +56,8 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void _search(String query) {
-    Set<Marker> markers = MarkersInSchool().markersInSchool;
-    markerList = findMarkersByTitle(markers, query);
     setState(() {
-      ListNames = extractMarkerTitles(markerList);
+      markerList = findMarkersByTitle(query);
     });
   }
 }

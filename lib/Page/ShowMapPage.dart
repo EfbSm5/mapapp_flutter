@@ -5,6 +5,10 @@ import 'package:x_amap_base/x_amap_base.dart';
 import '../Data/Markers.dart';
 
 class ShowMapPageBody extends StatefulWidget {
+  final Marker? marker;
+
+  const ShowMapPageBody({super.key, this.marker});
+
   @override
   State<StatefulWidget> createState() => _ShowMapPageState();
 }
