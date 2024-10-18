@@ -14,23 +14,30 @@ class ShowMapPageBody extends StatefulWidget {
 }
 
 class _ShowMapPageState extends State<ShowMapPageBody> {
-  static const CameraPosition _kInitialPosition = CameraPosition(
+  CameraPosition initialPosition = const CameraPosition(
     target: LatLng(30.51279, 114.413487),
     zoom: 17.0,
   );
 
   @override
   Widget build(BuildContext context) {
+    var selectedMarker = widget.marker;
+    if (selectedMarker != null) {
+      initialPosition =
+          CameraPosition(target: selectedMarker.position, zoom: 17.0);
+    }
     final AMapWidget map = AMapWidget(
+      // limitBounds: LatLngBounds(
+      //     southwest: const LatLng(30.505633, 114.401235),
+      //     northeast: const LatLng(30.519878, 114.441127)),
       onLocationChanged: onLocationChanged,
       markers: MarkersInSchool().markersInSchool,
       mapType: MapType.satellite,
       compassEnabled: true,
       labelsEnabled: false,
-      initialCameraPosition: _kInitialPosition,
+      initialCameraPosition: initialPosition,
       onMapCreated: onMapCreated,
     );
-
     return ConstrainedBox(
       constraints: const BoxConstraints.expand(),
       child: SizedBox(
@@ -41,19 +48,19 @@ class _ShowMapPageState extends State<ShowMapPageBody> {
     );
   }
 
-  late AMapController _mapController;
+  late AMapController mapController;
 
   void onMapCreated(AMapController controller) {
     setState(() {
-      _mapController = controller;
+      mapController = controller;
     });
   }
 
-  late AMapLocation _aMapLocation;
+  late AMapLocation aMapLocation;
 
   void onLocationChanged(AMapLocation location) {
     setState(() {
-      _aMapLocation = location;
+      aMapLocation = location;
     });
   }
 }
