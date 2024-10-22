@@ -6,9 +6,9 @@ import 'searchPage.dart';
 import 'showMapPage.dart';
 
 class MapApp extends StatefulWidget {
-  final int? page;
+  final Marker? marker;
 
-  const MapApp({super.key, this.page});
+  const MapApp({super.key, this.marker});
 
   @override
   _MapAppState createState() => _MapAppState();
@@ -16,20 +16,24 @@ class MapApp extends StatefulWidget {
 
 class _MapAppState extends State<MapApp> {
   var selectedPage = 0;
+  Marker? selectedMarker;
 
   @override
   Widget build(BuildContext context) {
-    Marker? selectedMarker;
     Widget showPage;
     switch (selectedPage) {
       case 0:
-        showPage = ShowMapPageBody();
+        showPage = ShowMapPageBody(
+          marker: selectedMarker,
+        );
         break;
       case 1:
         showPage = SearchPage(
           onTap: (marker) {
             selectedMarker = marker;
-            selectedPage = 0;
+            setState(() {
+              selectedPage = 0;
+            });
           },
         );
         break;
