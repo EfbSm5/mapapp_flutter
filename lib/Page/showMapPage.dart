@@ -2,7 +2,7 @@ import 'package:amap_map/amap_map.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:x_amap_base/x_amap_base.dart';
 
-import '../Data/Markers.dart';
+import '../Data/markers.dart';
 
 class ShowMapPageBody extends StatefulWidget {
   final Marker? marker;
@@ -14,17 +14,19 @@ class ShowMapPageBody extends StatefulWidget {
 }
 
 class _ShowMapPageState extends State<ShowMapPageBody> {
-  CameraPosition initialPosition = const CameraPosition(
-    target: LatLng(30.51279, 114.413487),
-    zoom: 17.0,
-  );
+  late CameraPosition initPosition;
 
   @override
   Widget build(BuildContext context) {
     var selectedMarker = widget.marker;
     if (selectedMarker != null) {
-      initialPosition =
+      initPosition =
           CameraPosition(target: selectedMarker.position, zoom: 17.0);
+    } else {
+      initPosition = const CameraPosition(
+        target: LatLng(30.51279, 114.413487),
+        zoom: 17.0,
+      );
     }
     final AMapWidget map = AMapWidget(
       // limitBounds: LatLngBounds(
@@ -35,7 +37,7 @@ class _ShowMapPageState extends State<ShowMapPageBody> {
       mapType: MapType.satellite,
       compassEnabled: true,
       labelsEnabled: false,
-      initialCameraPosition: initialPosition,
+      initialCameraPosition: initPosition,
       onMapCreated: onMapCreated,
     );
     return ConstrainedBox(

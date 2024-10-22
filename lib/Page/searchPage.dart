@@ -1,12 +1,13 @@
 import 'package:amap_map/amap_map.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mapapp/Data/Markers.dart';
-import 'package:mapapp/Data/SearchForPoi.dart';
-import 'package:mapapp/Page/ShowMapPage.dart';
+import 'package:mapapp/Data/markers.dart';
+import 'package:mapapp/Data/searchForPoi.dart';
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({super.key});
+  final Function(Marker) onTap;
+
+  const SearchPage({super.key, required this.onTap});
 
   @override
   State<StatefulWidget> createState() => _SearchPageState();
@@ -41,10 +42,7 @@ class _SearchPageState extends State<SearchPage> {
                 return ListTile(
                   title: Text(name!),
                   onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ShowMapPageBody()));
+                    widget.onTap(markerList[index]);
                   },
                 );
               },

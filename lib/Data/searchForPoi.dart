@@ -1,5 +1,5 @@
 import 'package:amap_map/amap_map.dart';
-import 'package:mapapp/Data/Markers.dart';
+import 'package:mapapp/Data/markers.dart';
 
 List<Marker> findMarkersByTitle(String title) {
   var markers = MarkersInSchool().markersInSchool;
