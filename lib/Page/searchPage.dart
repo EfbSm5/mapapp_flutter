@@ -1,5 +1,4 @@
 import 'package:amap_map/amap_map.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mapapp/Data/markers.dart';
 import 'package:mapapp/Data/searchForPoi.dart';
