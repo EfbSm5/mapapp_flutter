@@ -5,35 +5,37 @@ import 'package:x_amap_base/x_amap_base.dart';
 import '../Data/markers.dart';
 
 class ShowMapPageBody extends StatefulWidget {
-  final Marker? marker;
+  final LatLng position;
   final MapType mapType;
+  final bool showLabels;
 
-  const ShowMapPageBody({super.key, this.marker, required this.mapType});
+  const ShowMapPageBody(
+      {super.key,
+      required this.position,
+      required this.mapType,
+      required this.showLabels});
 
   @override
   State<StatefulWidget> createState() => _ShowMapPageState();
 }
 
 class _ShowMapPageState extends State<ShowMapPageBody> {
-  late CameraPosition initPosition;
-
   @override
   Widget build(BuildContext context) {
-    var selectedMarker = widget.marker;
-    initPosition = CameraPosition(
-        target: selectedMarker?.position ?? const LatLng(30.51279, 114.413487),
-        zoom: 17.0);
-
+    //initMarkerData();
+    // can not use now
     final AMapWidget map = AMapWidget(
       // limitBounds: LatLngBounds(
       //     southwest: const LatLng(30.505633, 114.401235),
       //     northeast: const LatLng(30.519878, 114.441127)),
+      //     make it stupid
       onLocationChanged: onLocationChanged,
       markers: MarkersInSchool().markersInSchool,
       mapType: widget.mapType,
       compassEnabled: true,
-      labelsEnabled: false,
-      initialCameraPosition: initPosition,
+      labelsEnabled: widget.showLabels,
+      initialCameraPosition:
+          CameraPosition(target: widget.position, zoom: 17.0),
       onMapCreated: onMapCreated,
     );
     return ConstrainedBox(
